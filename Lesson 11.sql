@@ -164,3 +164,62 @@ where price > (select avg(price) from products);
 select count(product_id)
 from products
 where price > (select avg(price) from products);
+
+-- Найти категории товаров, в которых средняя цена товара выше 100.
+-- Вывести только название категории.
+select category_name
+from categories as cat
+join (select category_id, avg(price) as avg_price
+		from products
+		group by category_id
+		having avg_price > 100) as cat_avg_price
+on cat.category_id = cat_avg_price.category_id;
+
+-- Вывести те категории, где есть товары дороже средней цены в этой категории.
+-- 1. Найти среднюю цену товаров в каждой категории
+select category_id, avg(price)
+from products
+group by category_id;
+
+-- 1.1. Вывести товары дороже средней цены в этой категории.
+select prod.product_name, prod.price, prod.category_id
+from products as prod
+join (select category_id, avg(price) as avg_price
+		from products
+		group by category_id) as cat_avg_price
+on prod.category_id = cat_avg_price.category_id
+where prod.price > cat_avg_price.avg_price;
+
+-- 2. Вывести категории, где есть товары дороже средней цены в этой категории.
+select category_name
+from categories as cat
+join products as prod
+on cat.category_id = prod.category_id
+join (select category_id, avg(price) as avg_price
+		from products
+		group by category_id) as cat_avg_price
+on prod.category_id = cat_avg_price.category_id
+where prod.price > cat_avg_price.avg_price;
+
+
+select cat.category_name
+from categories as cat
+join (select prod.product_name, prod.price, prod.category_id
+		from products as prod
+		join (select category_id, avg(price) as avg_price
+				from products
+				group by category_id) as cat_avg_price
+		on prod.category_id = cat_avg_price.category_id
+		where prod.price > cat_avg_price.avg_price) as prod_cat_avg_price
+on cat.category_id = prod_cat_avg_price.category_id;
+
+-- Вывести названия товаров, которые стоят дороже средней стоимости всех товаров, но находятся в категории, 
+-- где средняя цена ниже 100.
+select prod.product_name, prod.category_id
+from products as prod
+join (select category_id, avg(price) as avg_price
+		from products
+		group by category_id
+		having avg_price < 100) as cat_avg_price
+on prod.category_id = cat_avg_price.category_id
+where prod.price > (select avg(price) from products);
