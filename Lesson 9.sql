@@ -10,7 +10,7 @@
 
 -- Безопасный режим группировки
 -- Вкл.
--- SET sql_mode=(SELECT CONCAT(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+-- SET sql_mode = CONCAT(@@sql_mode, ',ONLY_FULL_GROUP_BY');
 
 -- Выкл.
 -- SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
